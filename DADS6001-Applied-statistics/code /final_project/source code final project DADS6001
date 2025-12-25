@@ -1,0 +1,621 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOx84C1KPTmQkoTiomCN8vR",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/tontantip/DADS6001-Applied-statistics/blob/main/DADS6001-Applied-statistics/code%20/final_project/source%20code%20final%20project%20DADS6001\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Lithium & Alzheimer’s Progression (One-way anova)"
+      ],
+      "metadata": {
+        "id": "SF7Lc5PIp-gu"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## prepare data frame"
+      ],
+      "metadata": {
+        "id": "fn2dGGfDqJx3"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "nci <- c(68.91, 61.66, 17.63, 33.53, 230.09, 49.17, 61.01, 60.04, 102.31, 55.95, 40.87, 67.84,\n",
+        "         29.43, 140.19, 30.38, 17.21, 71.51, 45.06, 75.51, 134.73, 40.47, 22.07, 64.52, 14.98,\n",
+        "         129.03, 80.89, 51.87, 46.58, 11.60, 31.45, 109.65, 37.39, 37.31, 41.87, 22.52, 19.15,\n",
+        "         50.70, 14.05, 54.40, 50.64, 153.07, 45.60, 44.65, 138.92, 100.29, 81.11, 58.58, 11.58,\n",
+        "         33.33, 72.26, 50.09, 98.59, 14.37, 138.53, 32.23, 49.37, 74.63, 32.73, 86.25, 83.93,\n",
+        "         41.44, 34.07, 33.22, 47.97, 11.29, 204.98, 192.41, 250.39, 39.27, 88.88, 46.01, 30.87,\n",
+        "         34.60, 89.52, 116.05, 48.47, 81.04, 19.53, 116.19, 149.78, 52.92, 39.35, 36.63, 27.00,\n",
+        "         9.71, 48.03, 42.36, 46.80, 46.39, 74.20, 27.14, 71.91, 64.31, 14.22, 90.80, 31.15,\n",
+        "         46.94, 167.84, 168.23, 43.96, 87.84, 92.73, 38.87, 94.16, 50.53, 26.23, 24.54, 41.50,\n",
+        "         182.54, 135.84, 57.41, 154.79, 101.10, 235.64, 57.76, 45.10, 42.29, 67.14, 54.70,\n",
+        "         112.01, 44.84, 63.27, 118.12, 191.86, 41.61, 54.05, 35.00, 66.83, 53.22, 16.18, 145.04,\n",
+        "         12.20, 33.77)\n",
+        "\n",
+        "mci <- c(90.02, 4.62, 28.45, 31.44, 44.49, 57.67, 40.98, 47.99, 65.27, 10.59, 96.14, 115.61,\n",
+        "         43.61, 68.11, 92.01, 65.65, 44.78, 80.11, 16.20, 39.04, 37.59, 121.42, 24.62, 37.03,\n",
+        "         85.79, 17.71, 11.20, 22.18, 108.48, 18.29, 28.41, 110.92, 59.86, 18.90, 45.98, 33.78,\n",
+        "         77.84, 85.73, 38.63, 9.87, 19.20, 24.89, 35.46, 63.93, 44.28, 40.59, 53.87, 12.35,\n",
+        "         57.54, 77.73, 79.49, 40.56, 32.31, 31.53, 19.16, 71.68, 36.72, 43.54)\n",
+        "\n",
+        "ad <- c(18.43, 21.54, 28.01, 26.29, 43.87, 96.68, 42.72, 5.66, 89.19, 77.63, 76.99, 28.85,\n",
+        "        111.60, 6.24, 33.12, 25.61, 42.66, 29.30, 38.50, 44.89, 9.37, 26.38, 63.23, 20.81,\n",
+        "        84.00, 105.19, 29.73, 17.82, 51.21, 28.58, 19.32, 101.93, 60.00, 22.39, 59.17, 16.79,\n",
+        "        2.09, 40.18, 40.50, 80.59, 55.25, 30.15, 66.24, 25.55, 63.23, 37.27, 18.83, 43.58,\n",
+        "        75.60, 86.75, 36.11, 23.78, 31.82, 102.30, 30.93, 11.59, 50.60, 39.17, 27.77, 15.95,\n",
+        "        29.56, 38.70, 35.85, 30.45, 37.25, 25.66, 50.26, 76.44, 7.16, 15.83, 24.60, 50.78,\n",
+        "        47.75, 39.77, 33.91, 23.45, 62.91, 22.95, 54.38, 42.81, 73.65, 45.51, 52.26, 58.78,\n",
+        "        49.22, 39.90, 23.14, 28.98, 17.98, 62.81, 35.70, 73.91, 69.55, 41.16)\n",
+        "\n",
+        "lithium_data <- data.frame(\n",
+        "  Value = c(nci, mci, ad),\n",
+        "  Group = factor(c(rep(\"NCI\", length(nci)),\n",
+        "                   rep(\"MCI\", length(mci)),\n",
+        "                   rep(\"AD\", length(ad))))\n",
+        ")\n"
+      ],
+      "metadata": {
+        "id": "FMQ2QNcslnhc"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Test assumption"
+      ],
+      "metadata": {
+        "id": "FH9gs0TAqU8I"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Normality test"
+      ],
+      "metadata": {
+        "id": "BERxZYWdqbP_"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "if(!require(rstatix)) install.packages(\"rstatix\")"
+      ],
+      "metadata": {
+        "id": "yNkZFPrgrfnF",
+        "outputId": "180d1a90-bb0e-4c78-d69c-217c7dcd70a8",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Installing package into ‘/usr/local/lib/R/site-library’\n",
+            "(as ‘lib’ is unspecified)\n",
+            "\n",
+            "also installing the dependencies ‘xts’, ‘TTR’, ‘quadprog’, ‘quantmod’, ‘colorspace’, ‘fracdiff’, ‘lmtest’, ‘timeDate’, ‘tseries’, ‘urca’, ‘zoo’, ‘RcppArmadillo’, ‘cowplot’, ‘Deriv’, ‘forecast’, ‘microbenchmark’, ‘rbibutils’, ‘numDeriv’, ‘doBy’, ‘SparseM’, ‘MatrixModels’, ‘minqa’, ‘nloptr’, ‘reformulas’, ‘Rdpack’, ‘RcppEigen’, ‘carData’, ‘abind’, ‘Formula’, ‘pbkrtest’, ‘quantreg’, ‘lme4’, ‘corrplot’, ‘car’\n",
+            "\n",
+            "\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "shapiro_test(nci)\n",
+        "shapiro_test(mci)\n",
+        "shapiro_test(ad)"
+      ],
+      "metadata": {
+        "id": "RiIfmEGpq62K",
+        "outputId": "3f2247c7-46ac-4fc9-aea0-bb3f0a2ae668",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 354
+        }
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A tibble: 1 × 3</caption>\n",
+              "<thead>\n",
+              "\t<tr><th scope=col>variable</th><th scope=col>statistic</th><th scope=col>p.value</th></tr>\n",
+              "\t<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><td>nci</td><td>0.8472673</td><td>2.038525e-10</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA tibble: 1 × 3\n\n| variable &lt;chr&gt; | statistic &lt;dbl&gt; | p.value &lt;dbl&gt; |\n|---|---|---|\n| nci | 0.8472673 | 2.038525e-10 |\n\n",
+            "text/latex": "A tibble: 1 × 3\n\\begin{tabular}{lll}\n variable & statistic & p.value\\\\\n <chr> & <dbl> & <dbl>\\\\\n\\hline\n\t nci & 0.8472673 & 2.038525e-10\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "  variable statistic p.value     \n",
+              "W nci      0.8472673 2.038525e-10"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A tibble: 1 × 3</caption>\n",
+              "<thead>\n",
+              "\t<tr><th scope=col>variable</th><th scope=col>statistic</th><th scope=col>p.value</th></tr>\n",
+              "\t<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><td>mci</td><td>0.94106</td><td>0.007213414</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA tibble: 1 × 3\n\n| variable &lt;chr&gt; | statistic &lt;dbl&gt; | p.value &lt;dbl&gt; |\n|---|---|---|\n| mci | 0.94106 | 0.007213414 |\n\n",
+            "text/latex": "A tibble: 1 × 3\n\\begin{tabular}{lll}\n variable & statistic & p.value\\\\\n <chr> & <dbl> & <dbl>\\\\\n\\hline\n\t mci & 0.94106 & 0.007213414\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "  variable statistic p.value    \n",
+              "W mci      0.94106   0.007213414"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A tibble: 1 × 3</caption>\n",
+              "<thead>\n",
+              "\t<tr><th scope=col>variable</th><th scope=col>statistic</th><th scope=col>p.value</th></tr>\n",
+              "\t<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><td>ad</td><td>0.9396835</td><td>0.0002958116</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA tibble: 1 × 3\n\n| variable &lt;chr&gt; | statistic &lt;dbl&gt; | p.value &lt;dbl&gt; |\n|---|---|---|\n| ad | 0.9396835 | 0.0002958116 |\n\n",
+            "text/latex": "A tibble: 1 × 3\n\\begin{tabular}{lll}\n variable & statistic & p.value\\\\\n <chr> & <dbl> & <dbl>\\\\\n\\hline\n\t ad & 0.9396835 & 0.0002958116\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "  variable statistic p.value     \n",
+              "W ad       0.9396835 0.0002958116"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Homogeneity test"
+      ],
+      "metadata": {
+        "id": "FMDJC2zvsJOI"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "one_way <- aov(Value ~ Group, data = lithium_data)\n",
+        "\n",
+        "levene_test(one_way)"
+      ],
+      "metadata": {
+        "id": "9ZaPtOwwsNLW",
+        "outputId": "2bd238ac-f015-4036-ece4-2518d74f2e25",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 129
+        }
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A tibble: 1 × 4</caption>\n",
+              "<thead>\n",
+              "\t<tr><th scope=col>df1</th><th scope=col>df2</th><th scope=col>statistic</th><th scope=col>p</th></tr>\n",
+              "\t<tr><th scope=col>&lt;int&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><td>2</td><td>282</td><td>8.184283</td><td>0.0003507051</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA tibble: 1 × 4\n\n| df1 &lt;int&gt; | df2 &lt;int&gt; | statistic &lt;dbl&gt; | p &lt;dbl&gt; |\n|---|---|---|---|\n| 2 | 282 | 8.184283 | 0.0003507051 |\n\n",
+            "text/latex": "A tibble: 1 × 4\n\\begin{tabular}{llll}\n df1 & df2 & statistic & p\\\\\n <int> & <int> & <dbl> & <dbl>\\\\\n\\hline\n\t 2 & 282 & 8.184283 & 0.0003507051\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "  df1 df2 statistic p           \n",
+              "1 2   282 8.184283  0.0003507051"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Statistic test"
+      ],
+      "metadata": {
+        "id": "5fm54igGvxSt"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "welch_anova <- oneway.test(Value ~ Group, data = lithium_data, var.equal = FALSE)\n",
+        "print(welch_anova)"
+      ],
+      "metadata": {
+        "id": "qIM5eiz1qS3c",
+        "outputId": "0e0cdf74-2ab9-4314-fcda-451944e61a82",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "\tOne-way analysis of means (not assuming equal variances)\n",
+            "\n",
+            "data:  Value and Group\n",
+            "F = 12.567, num df = 2.00, denom df = 156.81, p-value = 8.665e-06\n",
+            "\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Post hoc (games howell test)"
+      ],
+      "metadata": {
+        "id": "QCo6IcOUwFM0"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "library(rstatix)\n",
+        "post_hoc_result <- games_howell_test(Value ~ Group,data = lithium_data)\n",
+        "\n",
+        "# 3. แสดงผลลัพธ์\n",
+        "print(post_hoc_result)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "JhkHFzo29Ofj",
+        "outputId": "8d79c319-f6a3-409d-d65f-04117acfbc5d"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\u001b[90m# A tibble: 3 × 8\u001b[39m\n",
+            "  .y.   group1 group2 estimate conf.low conf.high     p.adj p.adj.signif\n",
+            "\u001b[90m*\u001b[39m \u001b[3m\u001b[90m<chr>\u001b[39m\u001b[23m \u001b[3m\u001b[90m<chr>\u001b[39m\u001b[23m  \u001b[3m\u001b[90m<chr>\u001b[39m\u001b[23m     \u001b[3m\u001b[90m<dbl>\u001b[39m\u001b[23m    \u001b[3m\u001b[90m<dbl>\u001b[39m\u001b[23m     \u001b[3m\u001b[90m<dbl>\u001b[39m\u001b[23m     \u001b[3m\u001b[90m<dbl>\u001b[39m\u001b[23m \u001b[3m\u001b[90m<chr>\u001b[39m\u001b[23m       \n",
+            "\u001b[90m1\u001b[39m Value AD     MCI        6.12    -\u001b[31m4\u001b[39m\u001b[31m.\u001b[39m\u001b[31m89\u001b[39m      17.1 0.386     ns          \n",
+            "\u001b[90m2\u001b[39m Value AD     NCI       25.4     13.5       37.4 0.000\u001b[4m0\u001b[24m\u001b[4m0\u001b[24m\u001b[4m3\u001b[24m3 ****        \n",
+            "\u001b[90m3\u001b[39m Value MCI    NCI       19.3      5.50      33.1 0.003     **          \n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Diagnosis and Plaque Status on Brain Lithium (Two-way anova)"
+      ],
+      "metadata": {
+        "id": "_CjQ7FnFyuDr"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## prepare data frame"
+      ],
+      "metadata": {
+        "id": "DiFpHOXOyzWU"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "nci_np <- c(0.851, 1.554, 1.162, 1.501, 0.840, 0.054, 1.081)\n",
+        "nci_p  <- c(1.965, 2.162, 2.203, 2.641, 2.260, 2.233, 2.185)\n",
+        "ad_np  <- c(0.990, 1.010, 1.874, 1.026, 0.126)\n",
+        "ad_p   <- c(3.428, 3.720, 3.743, 4.491, 2.246)\n",
+        "\n",
+        "\n",
+        "two_way_data <- data.frame(\n",
+        "  Value = c(nci_np, nci_p, ad_np, ad_p),\n",
+        "  Diagnosis = factor(c(rep(\"NCI\", length(nci_np) + length(nci_p)),\n",
+        "                       rep(\"AD\", length(ad_np) + length(ad_p)))),\n",
+        "  Plaque_Type = factor(c(rep(\"NP\", length(nci_np)),\n",
+        "                         rep(\"P\", length(nci_p)),\n",
+        "                         rep(\"NP\", length(ad_np)),\n",
+        "                         rep(\"P\", length(ad_p))))\n",
+        ")\n"
+      ],
+      "metadata": {
+        "id": "H6A4ZiRzWVxW"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Test assumption"
+      ],
+      "metadata": {
+        "id": "eAF-Dvy7zgk5"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Normality test"
+      ],
+      "metadata": {
+        "id": "vIQzKOEMznbE"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "library(rstatix)\n",
+        "\n",
+        "two_way_data %>%\n",
+        "  group_by(Diagnosis, Plaque_Type) %>%\n",
+        "  shapiro_test(Value)"
+      ],
+      "metadata": {
+        "id": "DMiKKV6H0Oai",
+        "outputId": "7f4b6f0d-8157-4df6-c1a5-f3713c67bdf3",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 223
+        }
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A tibble: 4 × 5</caption>\n",
+              "<thead>\n",
+              "\t<tr><th scope=col>Diagnosis</th><th scope=col>Plaque_Type</th><th scope=col>variable</th><th scope=col>statistic</th><th scope=col>p</th></tr>\n",
+              "\t<tr><th scope=col>&lt;fct&gt;</th><th scope=col>&lt;fct&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><td>AD </td><td>NP</td><td>Value</td><td>0.8963206</td><td>0.3898852</td></tr>\n",
+              "\t<tr><td>AD </td><td>P </td><td>Value</td><td>0.9230921</td><td>0.5500804</td></tr>\n",
+              "\t<tr><td>NCI</td><td>NP</td><td>Value</td><td>0.9064065</td><td>0.3715528</td></tr>\n",
+              "\t<tr><td>NCI</td><td>P </td><td>Value</td><td>0.8473569</td><td>0.1162291</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA tibble: 4 × 5\n\n| Diagnosis &lt;fct&gt; | Plaque_Type &lt;fct&gt; | variable &lt;chr&gt; | statistic &lt;dbl&gt; | p &lt;dbl&gt; |\n|---|---|---|---|---|\n| AD  | NP | Value | 0.8963206 | 0.3898852 |\n| AD  | P  | Value | 0.9230921 | 0.5500804 |\n| NCI | NP | Value | 0.9064065 | 0.3715528 |\n| NCI | P  | Value | 0.8473569 | 0.1162291 |\n\n",
+            "text/latex": "A tibble: 4 × 5\n\\begin{tabular}{lllll}\n Diagnosis & Plaque\\_Type & variable & statistic & p\\\\\n <fct> & <fct> & <chr> & <dbl> & <dbl>\\\\\n\\hline\n\t AD  & NP & Value & 0.8963206 & 0.3898852\\\\\n\t AD  & P  & Value & 0.9230921 & 0.5500804\\\\\n\t NCI & NP & Value & 0.9064065 & 0.3715528\\\\\n\t NCI & P  & Value & 0.8473569 & 0.1162291\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "  Diagnosis Plaque_Type variable statistic p        \n",
+              "1 AD        NP          Value    0.8963206 0.3898852\n",
+              "2 AD        P           Value    0.9230921 0.5500804\n",
+              "3 NCI       NP          Value    0.9064065 0.3715528\n",
+              "4 NCI       P           Value    0.8473569 0.1162291"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Homogeneity test"
+      ],
+      "metadata": {
+        "id": "-81itMg70RiF"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "res_2way <- aov(Value ~ Diagnosis * Plaque_Type, data = two_way_data)\n",
+        "\n",
+        "levene_test(res_2way)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 129
+        },
+        "id": "GMCnvIu3YMVx",
+        "outputId": "286b9ed8-e167-4f27-8196-14ed682684aa"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A tibble: 1 × 4</caption>\n",
+              "<thead>\n",
+              "\t<tr><th scope=col>df1</th><th scope=col>df2</th><th scope=col>statistic</th><th scope=col>p</th></tr>\n",
+              "\t<tr><th scope=col>&lt;int&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><td>3</td><td>20</td><td>0.984165</td><td>0.4201287</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA tibble: 1 × 4\n\n| df1 &lt;int&gt; | df2 &lt;int&gt; | statistic &lt;dbl&gt; | p &lt;dbl&gt; |\n|---|---|---|---|\n| 3 | 20 | 0.984165 | 0.4201287 |\n\n",
+            "text/latex": "A tibble: 1 × 4\n\\begin{tabular}{llll}\n df1 & df2 & statistic & p\\\\\n <int> & <int> & <dbl> & <dbl>\\\\\n\\hline\n\t 3 & 20 & 0.984165 & 0.4201287\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "  df1 df2 statistic p        \n",
+              "1 3   20  0.984165  0.4201287"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Statistic test"
+      ],
+      "metadata": {
+        "id": "2WsVQUeZ0bwI"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "summary(res_2way)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 138
+        },
+        "id": "Y0-HaDXecVGK",
+        "outputId": "4de1fe26-9725-448b-beee-6c75a32190f5"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "                      Df Sum Sq Mean Sq F value   Pr(>F)    \n",
+              "Diagnosis              1  2.423   2.423   8.115  0.00993 ** \n",
+              "Plaque_Type            1 18.741  18.741  62.753 1.36e-07 ***\n",
+              "Diagnosis:Plaque_Type  1  2.430   2.430   8.138  0.00984 ** \n",
+              "Residuals             20  5.973   0.299                     \n",
+              "---\n",
+              "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Post hoc (Tukey test)"
+      ],
+      "metadata": {
+        "id": "v7390QGu0fz_"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "TukeyHSD(res_2way)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 381
+        },
+        "id": "-TiEc7NRrHc-",
+        "outputId": "32ffc7db-277d-46ca-be1a-55a43544ac39"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "  Tukey multiple comparisons of means\n",
+              "    95% family-wise confidence level\n",
+              "\n",
+              "Fit: aov(formula = Value ~ Diagnosis * Plaque_Type, data = two_way_data)\n",
+              "\n",
+              "$Diagnosis\n",
+              "             diff       lwr        upr     p adj\n",
+              "NCI-AD -0.6445429 -1.116523 -0.1725629 0.0099273\n",
+              "\n",
+              "$Plaque_Type\n",
+              "         diff      lwr      upr p adj\n",
+              "P-NP 1.767333 1.301955 2.232712 1e-07\n",
+              "\n",
+              "$`Diagnosis:Plaque_Type`\n",
+              "                      diff        lwr        upr     p adj\n",
+              "NCI:NP-AD:NP  0.0009428571 -0.8946795  0.8965652 1.0000000\n",
+              "AD:P-AD:NP    2.5204000000  1.5530173  3.4877827 0.0000027\n",
+              "NCI:P-AD:NP   1.2303714286  0.3347491  2.1259938 0.0051364\n",
+              "AD:P-NCI:NP   2.5194571429  1.6238348  3.4150795 0.0000008\n",
+              "NCI:P-NCI:NP  1.2294285714  0.4118410  2.0470162 0.0022474\n",
+              "NCI:P-AD:P   -1.2900285714 -2.1856509 -0.3944062 0.0033656\n"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    }
+  ]
+}
